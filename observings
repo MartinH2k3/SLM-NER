@@ -1,0 +1,3 @@
+if systemprompt = You should only output the results in JSON format
+output is like
+' ```json\n\n[\n\n  { "category": "DiseaseClass", "entity": "glucose-6-phosphate dehydrogenase mutations" },\n\n  { "category": "DiseaseClass", "entity": "severe enzyme deficiency" },\n\n  { "category": "CompositeMention", "entity": "X-chromosome inactivation" },\n\n  { "category": "Modifier", "entity": "somatic-cell mosaicism" }\n\n]\n\n```'

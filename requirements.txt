@@ -1,13 +1,19 @@
-#-r torch_requirements.txt
-#transformers==4.46
-peft==0.13
-datasets==3.1
-bitsandbytes==0.44
-accelerate==1.0 # required by peft
-loralib==0.1
-nltk~=3.8
-pandas~=2.2
+-r torch_requirements.txt
+transformers==4.46.*
+peft==0.13.*
+datasets==3.1.*
+bitsandbytes==0.44.*
+accelerate==1.0.* # required by peft
+loralib==0.1.*
+nltk~=3.9.1
+pandas~=2.2.*
 huggingface_hub
-trl==0.12
+trl==0.12.*
 flash-attn
 deepspeed
+outlines==0.1.*
+interegular # included in outlines as a dependancy, but silencing the warning
+# possibly not necesary, we will see
+openai
+litellm
+python-dotenv

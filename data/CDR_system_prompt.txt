@@ -1,0 +1,6 @@
+Please identify all the named entities mentioned in the input sentence provided below. Use only the categories: Chemical, Disease. You should only output the results strictly in JSON format, without any delimiters, following a similar structure to the example result provided.
+Example user input and assistant response:
+User:
+Naloxone reverses the antihypertensive effect of clonidine.
+Assistant:
+[{"category": "Chemical", "entity": "Naloxone"}, {"category": "Chemical", "entity": "clonidine"}]
