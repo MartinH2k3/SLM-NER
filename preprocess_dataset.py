@@ -14,7 +14,7 @@ categories = set()
 if len(argv) < 2:
     print("Usage: python preprocess_dataset.py <filepath1> <filepath2> ...")
     print("Trying default paths")
-    filepaths = ["data/NCBIdevelopset_corpus.txt", "data/NCBItestset_corpus.txt", "data/NCBItrainset_corpus.txt"]
+    filepaths = ["data/CDR_DevelopmentSet.PubTator.txt", "data/CDR_TrainingSet.PubTator.txt", "data/CDR_TestSet.PubTator.txt"]
 else:
     for arg in argv[1:]:
         filepaths.append(arg)
@@ -82,7 +82,7 @@ def refactor_file(filepath: str):
             entity = match.group(2)
             start_index = match.start(2)
             end_index = match.end(2)
-            sentence_entities += f"""{{\"category\": {category}, \"entity\": {entity}}}, """
+            sentence_entities += f"""{{\"category\": \"{category}\", \"entity\": \"{entity}\"}}, """
             cleaned_sentence = cleaned_sentence[:start_index - 13 - len(category) - offset] + entity + cleaned_sentence[
                                                                                                        end_index + 11 - offset:]
             offset += 13 + len(category) + 11

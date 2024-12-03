@@ -1,3 +1,13 @@
+1.
 if systemprompt = You should only output the results in JSON format
 output is like
 ' ```json\n\n[\n\n  { "category": "DiseaseClass", "entity": "glucose-6-phosphate dehydrogenase mutations" },\n\n  { "category": "DiseaseClass", "entity": "severe enzyme deficiency" },\n\n  { "category": "CompositeMention", "entity": "X-chromosome inactivation" },\n\n  { "category": "Modifier", "entity": "somatic-cell mosaicism" }\n\n]\n\n```'
+2.
+systemprompt =
+Please identify all the named entities mentioned in the input sentence provided below. Use only the categories: Chemical, Disease. You should only output the results strictly in JSON format, without any delimiters, following a similar structure to the example result provided.
+Example user input and assistant response:
+User:
+Famotidine-associated delirium.A series of six cases.Famotidine is a histamine H2-receptor antagonist used in inpatient settings for prevention of stress ulcers and is showing increasing popularity because of its low cost.
+Assistant:
+[{"category": "Chemical", "entity": "Naloxone"}, {"category": "Chemical", "entity": "clonidine"}]
+Then output always did just 2 entities, even if more possible.
