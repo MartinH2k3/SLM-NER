@@ -24,4 +24,12 @@ To activate the environment, run: ```conda activate bp_wsl```
 # Dataset
 The main dataset used in this project is [BioCreative-V-CDR-Corpus](https://github.com/JHnlp/BioCreative-V-CDR-Corpus/tree/master).  
 For using using different datasets, you need to
-1. Have your dataset in desired format. The dataset is plain text with entities annotated as \<category=
+1. Have your dataset in desired format. The dataset is plain text with entities annotated as 
+```Text that isn't an entity and entities are <category="CategoryName">EntityName</category>.```  
+In other words, the entities have to be enclosed in the category tag with category name. The text cannot contain the category tag or
+Phi-3 mini special tokens which are:  
+```<unk>, <s>, </s>, <|endoftext|>, <|end|>, <|assistant|>, <|user|>, <|system|>, <|placeholder1|> to <|placeholder6|>```
+2. Format the dataset using the ```format_dataset.py``` script. Use filename as script parameters. Example:  
+```python format_dataset.py train_dataset.txt test_dataset.txt dev_dataset.txt```
+3. In ```system_prompt.txt``` change the category names to the category names in your dataset and provide your examples instead of the examples provided.
+4. In ```finetune.py``` script, change the dataset path to the path of your dataset.
