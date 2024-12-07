@@ -1,5 +1,3 @@
-from webbrowser import Error
-
 import nltk
 from nltk.tokenize import sent_tokenize
 from sys import argv, exit
@@ -10,11 +8,10 @@ nltk.download("punkt")
 nltk.download('punkt_tab')
 
 filepaths = []
-categories = set()
 if len(argv) < 2:
     print("Usage: python preprocess_dataset.py <filepath1> <filepath2> ...")
     print("Trying default paths")
-    filepaths = ["data/CDR_DevelopmentSet.PubTator.txt", "data/CDR_TrainingSet.PubTator.txt", "data/CDR_TestSet.PubTator.txt"]
+    filepaths = []
 else:
     for arg in argv[1:]:
         filepaths.append(arg)
@@ -27,39 +24,7 @@ def stringify_sentence_entities():
 def refactor_file(filepath: str):
     with open(filepath, "r") as file:
         data = file.read()
-
-    articles = data.split("\n\n")
-    modified_data = ""
-    for article in articles:
-        article_rows = article.split("\n")
-        # first and second row contain the title and the article abstract
-        article_content = article_rows[0].split("|")[2] + "\n" + article_rows[1].split("|")[2]
-
-        modified_article_content = ""
-
-        if len(article_rows) < 3:
-            continue
-
-        prev_index = 0
-        # remaining rows are entities
-        for row in article_rows[2:]:
-            split_row = row.split("\t")
-            if len(split_row) < 6:
-                continue
-
-            start_index = int(split_row[1])
-            end_index = int(split_row[2])
-            category = split_row[4]
-            categories.add(category)
-            modified_article_content += (article_content[prev_index:start_index]
-                                         + f'<category="{category}">'
-                                         + article_content[start_index:end_index]
-                                         + f'</category>')
-            prev_index = end_index
-        modified_data += modified_article_content + "\n"
-
-    print(categories)
-    sentences = sent_tokenize(modified_data)
+    sentences = sent_tokenize(data)
     max_length = 512
     sentences_refactored = []
     current_sentence = ""

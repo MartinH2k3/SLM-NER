@@ -1,6 +1,0 @@
-Please identify all the named entities mentioned in the input sentence provided below. Use only the categories: SpecificDisease, DiseaseClass, CompositeMention, and Modifier. Remember, some terms might refer to broader disease classes, while others are specific diseases or composite mentions involving multiple diseases. You should only output the results strictly in JSON format, without any delimiters, following a similar structure to the example result provided.
-Example user input and assistant response:
-User:
-Most colon cancers arise from mutations in the gene encoding adenomatous polyposis coli (APC), a protein required for ubiquitin-mediated degradation of beta-catenin, but a small percentage of colon and some other cancers harbour beta-catenin-stabilizing mutations.
-Assistant:
-[{"category": DiseaseClass, "entity": colon cancers}, {"category": SpecificDisease, "entity": adenomatous polyposis coli}, {"category": SpecificDisease, "entity": APC}, {"category": CompositeMention, "entity": colon and some other cancers}]
