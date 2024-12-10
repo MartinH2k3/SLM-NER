@@ -8,6 +8,7 @@ From options chose
 * Architecture: x86_64
 * Distribution: WSL-Ubuntu
 * Version: 2.0
+After, run the commands shown on the website.
 ## Conda
 1. Go to the [Anaconda Archive](https://repo.anaconda.com/archive/) and find Linux distribution for your machine.
 2. From WSL terminal run ```wget https://repo.continuum.io/archive/[DISTRIBUTION]```  

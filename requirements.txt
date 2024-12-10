@@ -1,12 +1,12 @@
 -r torch_requirements.txt
 transformers==4.46.*
 peft==0.13.*
-datasets==3.1.*
+datasets==3.*.*
 bitsandbytes==0.44.*
 accelerate==1.0.* # required by peft
 loralib==0.1.*
-nltk~=3.9.1
-pandas~=2.2.*
+nltk==3.9.1
+pandas==2.2.*
 huggingface_hub
 trl==0.12.*
 flash-attn
@@ -17,3 +17,4 @@ interegular # included in outlines as a dependancy, but silencing the warning
 openai
 litellm
 python-dotenv
+wandb
