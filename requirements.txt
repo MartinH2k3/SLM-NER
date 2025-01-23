@@ -18,3 +18,4 @@ openai
 litellm
 python-dotenv
 wandb
+flask

@@ -3,6 +3,6 @@
   "training_dataset_path": "data/CDR_TrainingSet.json",
   "test_dataset_path": "data/CDR_TestSet.json",
   "dev_dataset_path": "data/CDR_DevelopmentSet.json",
-  "system_prompt_path": "data/system_prompt.json",
+  "system_prompt_path": "data/system_prompt.txt",
   "checkpoint_path": "checkpoint_dir/"
 }
