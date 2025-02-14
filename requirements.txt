@@ -19,3 +19,4 @@ litellm
 python-dotenv
 wandb
 flask
+nervaluate
