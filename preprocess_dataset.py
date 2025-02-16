@@ -1,6 +1,6 @@
 import nltk
 from nltk.tokenize import sent_tokenize
-from sys import argv, exit
+from sys import argv
 import re
 import pandas as pd
 
@@ -30,7 +30,7 @@ def refactor_file(filepath: str):
     current_sentence = ""
     for sentence in sentences:
         if len(current_sentence) + len(sentence) < max_length:
-            current_sentence += sentence
+            current_sentence += " " + sentence
         else:
             sentences_refactored.append(current_sentence)
             current_sentence = sentence
@@ -52,7 +52,7 @@ def refactor_file(filepath: str):
                                                                                                        end_index + 11 - offset:]
             offset += 13 + len(category) + 11
         cleaned_sentences.append(cleaned_sentence)
-        sentence_entities = sentence_entities[:-2]
+        sentence_entities = sentence_entities[:-2] if sentence_entities != "[" else sentence_entities
         sentence_entities += "]"
         entities_in_sentences.append(sentence_entities)
 
