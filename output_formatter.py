@@ -1,6 +1,6 @@
 import json
 
-def transform_to_prodigy(original_sentence: str, original_result: str):
+def transform_to_prodigy(original_sentence: str, original_result: str) -> list[dict]:
     parsed_entity_json = json.loads(original_result)
     entities = []
     found: set[tuple[int, int]] = set()
@@ -32,7 +32,3 @@ def transform_to_prodigy(original_sentence: str, original_result: str):
             })
     return entities
 
-
-sentence = "Famotidine-associated delirium. A series of six cases.\nFamotidine is a histamine H2-receptor antagonist used in inpatient settings for prevention of stress ulcers and is showing increasing popularity because of its low cost."
-output = "[{\"category\": \"Chemical\", \"entity\": \"Famotidine\"}, {\"category\": \"Disease\", \"entity\": \"delirium\"}, {\"category\": \"Chemical\", \"entity\": \"Famotidine\"}, {\"category\": \"Disease\", \"entity\": \"ulcers\"}]"
-print(transform_to_prodigy(sentence, output))
