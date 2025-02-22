@@ -6,6 +6,7 @@ from transformers import (
     BitsAndBytesConfig,
     pipeline
 )
+from peft import PeftConfig, PeftModel
 
 def get_base_model():
     with open('config.json', 'r') as file:
@@ -25,6 +26,34 @@ def get_base_model():
         quantization_config=bnb_config
     )
     model.eval()
+
+    return model
+
+
+def get_finetuned_model():
+    with open('config.json', 'r') as file:
+        config = json.load(file)
+    model_path = config.get("model_path")
+    checkpoint_path = config.get("checkpoint_path")
+
+    config = PeftConfig.from_pretrained(checkpoint_path + "/checkpoint-145")
+
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16
+    )
+
+    model = AutoModelForCausalLM.from_pretrained(
+        config.base_model_name_or_path,
+        return_dict=True,
+        quantization_config=bnb_config,
+        device_map="auto",
+        trust_remote_code=True
+    )
+
+    model = PeftModel.from_pretrained(model, checkpoint_path + "/checkpoint-145")
 
     return model
 
@@ -61,4 +90,3 @@ def generate_response(user_input: str, model, tokenizer):
     }
     generation_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
     return generation_pipeline(prepared_input, **generation_args)[0]['generated_text']
-
