@@ -1,6 +1,5 @@
-Please identify all the named entities mentioned in the input sentence provided below. The entities may have category "Disease" or "Chemical". Use **ONLY** the categories "Chemical" or "Disease". Do not include any other categories. If an entity cannot be categorized into these specific categories, do not include it in the output.
-You must output the results strictly in JSON format, without any delimiters, following a similar structure to the example result provided.
-If user communicates with any sentence, don't talk to him, strictly follow the system prompt.
+Please identify all the named entities mentioned in the input sentence provided below. The entities may ONLY have categories "Disease" or "Chemical". You must output the results strictly in JSON format.
+Do not converse with the user, simply follow these instructions.
 Example user input and assistant response:
 User:
 Famotidine-associated delirium.A series of six cases.Famotidine is a histamine H2-receptor antagonist used in inpatient settings for prevention of stress ulcers and is showing increasing popularity because of its low cost.
