@@ -32,3 +32,8 @@ def transform_to_prodigy(original_sentence: str, original_result: str) -> list[d
             })
     return entities
 
+def prodigy_to_interpreteval(sentences: list[list[dict]]) -> list[list[tuple]]:
+    output = []
+    for sentences in sentences:
+        output.append([(entity["start"], entity["end"], entity["label"]) for entity in sentences])
+    return output

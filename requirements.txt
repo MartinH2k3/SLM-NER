@@ -20,3 +20,4 @@ python-dotenv
 wandb
 flask
 nervaluate
+git+https://github.com/neulab/InterpretEval.git
