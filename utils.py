@@ -8,10 +8,16 @@ from transformers import (
 )
 from peft import PeftConfig, PeftModel
 
+with open('config.json', 'r') as file:
+    config = json.load(file)
+system_prompt_path = config.get("system_prompt_path")
+with open(system_prompt_path, "r") as f:
+    system_prompt = f.read()
+model_path = config.get("model_path")
+checkpoint_path = config.get("checkpoint_path")
+
+
 def get_base_model():
-    with open('config.json', 'r') as file:
-        config = json.load(file)
-    model_path = config.get("model_path")
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
@@ -31,12 +37,7 @@ def get_base_model():
 
 
 def get_finetuned_model():
-    with open('config.json', 'r') as file:
-        config = json.load(file)
-    model_path = config.get("model_path")
-    checkpoint_path = config.get("checkpoint_path")
-
-    config = PeftConfig.from_pretrained(checkpoint_path + "/checkpoint-145")
+    peft_config = PeftConfig.from_pretrained(checkpoint_path + "/checkpoint-145")
 
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -46,7 +47,7 @@ def get_finetuned_model():
     )
 
     model = AutoModelForCausalLM.from_pretrained(
-        config.base_model_name_or_path,
+        peft_config.base_model_name_or_path,
         return_dict=True,
         quantization_config=bnb_config,
         device_map="auto",
@@ -59,16 +60,12 @@ def get_finetuned_model():
 
 
 def get_base_tokenizer():
-    with open('config.json', 'r') as file:
-        config = json.load(file)
-    model_path = config.get("model_path")
-
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     tokenizer.pad_token = tokenizer.unk_token
-
     return tokenizer
 
-def _prepare_for_inference(user_input: str, system_prompt: str, tokenizer):
+
+def _prepare_for_inference(user_input: str, tokenizer):
     prompt_data = []
     if len(system_prompt):
         prompt_data.append({"role": "system", "content": system_prompt})
@@ -77,13 +74,24 @@ def _prepare_for_inference(user_input: str, system_prompt: str, tokenizer):
         prompt_data, tokenize=False, add_generation_prompt=True
     )
 
-def generate_response(user_input: str, model, tokenizer):
-    with open('config.json', 'r') as file:
-        config = json.load(file)
-    system_prompt_path = config.get("system_prompt_path")
-    with open(system_prompt_path, "r") as f:
-        system_prompt = f.read()
-    prepared_input = _prepare_for_inference(user_input, system_prompt, tokenizer)
+
+prev_model = None
+prev_tokenizer = None
+
+def generate_response(user_input: str, model=None, tokenizer=None):
+    global prev_model, prev_tokenizer
+
+    if model is None:
+        if prev_model is None:
+            prev_model = get_base_model()
+        model = prev_model
+
+    if tokenizer is None:
+        if prev_tokenizer is None:
+            prev_tokenizer = get_base_tokenizer()
+        tokenizer = prev_tokenizer
+
+    prepared_input = _prepare_for_inference(user_input, tokenizer)
     generation_args = {
         "max_new_tokens": 150,
         "return_full_text": False,
