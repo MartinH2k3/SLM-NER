@@ -7,14 +7,23 @@ from transformers import (
     pipeline
 )
 from peft import PeftConfig, PeftModel
+import openai
+from dotenv import load_dotenv
+import os
+from typing import Optional
 
 with open('config.json', 'r') as file:
-    config = json.load(file)
-system_prompt_path = config.get("system_prompt_path")
-with open(system_prompt_path, "r") as f:
-    system_prompt = f.read()
-model_path = config.get("model_path")
-checkpoint_path = config.get("checkpoint_path")
+    _config = json.load(file)
+_system_prompt_path = _config.get("system_prompt_path")
+with open(_system_prompt_path, "r") as f:
+    _system_prompt = f.read()
+_model_path = _config.get("model_path")
+_checkpoint_path = _config.get("checkpoint_path")
+_api_model = _config.get("api_model")
+_result_separator = _config.get("result_separator")
+
+def get_system_prompt():
+    return _system_prompt
 
 
 def get_base_model():
@@ -26,7 +35,7 @@ def get_base_model():
     )
 
     model = AutoModelForCausalLM.from_pretrained(
-        model_path,
+        _model_path,
         device_map="auto",
         trust_remote_code=True,
         quantization_config=bnb_config
@@ -37,7 +46,7 @@ def get_base_model():
 
 
 def get_finetuned_model():
-    peft_config = PeftConfig.from_pretrained(checkpoint_path + "/checkpoint-145")
+    peft_config = PeftConfig.from_pretrained(_checkpoint_path + "/checkpoint-145")
 
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -54,21 +63,21 @@ def get_finetuned_model():
         trust_remote_code=True
     )
 
-    model = PeftModel.from_pretrained(model, checkpoint_path + "/checkpoint-145")
+    model = PeftModel.from_pretrained(model, _checkpoint_path + "/checkpoint-145")
 
     return model
 
 
 def get_base_tokenizer():
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    tokenizer = AutoTokenizer.from_pretrained(_model_path)
     tokenizer.pad_token = tokenizer.unk_token
     return tokenizer
 
 
 def _prepare_for_inference(user_input: str, tokenizer):
     prompt_data = []
-    if len(system_prompt):
-        prompt_data.append({"role": "system", "content": system_prompt})
+    if len(_system_prompt):
+        prompt_data.append({"role": "system", "content": _system_prompt})
     prompt_data.append({"role": "user", "content": user_input})
     return tokenizer.apply_chat_template(
         prompt_data, tokenize=False, add_generation_prompt=True
@@ -77,7 +86,6 @@ def _prepare_for_inference(user_input: str, tokenizer):
 
 prev_model = None
 prev_tokenizer = None
-
 def generate_response(user_input: str, model=None, tokenizer=None):
     global prev_model, prev_tokenizer
 
@@ -98,3 +106,38 @@ def generate_response(user_input: str, model=None, tokenizer=None):
     }
     generation_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
     return generation_pipeline(prepared_input, **generation_args)[0]['generated_text']
+
+client: Optional[openai.OpenAI] = None
+def load_client():
+    global client
+    if client is not None:
+        return
+    load_dotenv()
+    api_key = os.getenv("OPENAI_API_KEY")
+    litellm_url = os.getenv("LITELLM_URL")
+    client = openai.OpenAI(api_key=api_key, base_url=litellm_url)
+
+
+def generate_openai(user_input: str):
+    load_client()
+    if client is None:
+        raise ValueError("Client not loaded")
+    response = client.chat.completions.create(
+        model=_api_model,
+        messages=[
+            {"role": "system", "content": get_system_prompt()},
+            {"role": "user",
+             "content": user_input},
+        ]
+    )
+    return response.choices[0].message.content
+
+
+def store_results(file_path: str, results: list[str], do_backup: bool = False, do_append: bool = False):
+    with open(file_path, 'w' if not do_append else 'a') as file:
+        file.write(_result_separator.join(results))
+
+    if do_backup:
+        from datetime import datetime
+        with open(file_path + '_' + datetime.now().strftime("%Y%m%d%H%M%S") + '.txt', 'w') as file:
+            file.write(_result_separator.join(results))
