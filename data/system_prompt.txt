@@ -2,6 +2,6 @@ Please identify all the named entities mentioned in the input sentence provided 
 Do not converse with the user, simply follow these instructions.
 Example user input and assistant response:
 User:
-Famotidine-associated delirium.A series of six cases.Famotidine is a histamine H2-receptor antagonist used in inpatient settings for prevention of stress ulcers and is showing increasing popularity because of its low cost.
+However, studies into the dose necessary to combating scopolamine. Effects of uninephrectomy and high protein feeding on lithium-induced chronic renal failure in rats.
 Assistant:
-[{"category": "Chemical", "entity": "Famotidine"}, {"category": "Disease", "entity": "delirium"}, {"category": "Chemical", "entity": "Famotidine"}, {"category": "Disease", "entity": "ulcers"}]
+[{"category": "Chemical", "entity": "scopolamine"}, {"category": "Chemical", "entity": "lithium"}, {"category": "Disease", "entity": "chronic renal failure"}]
