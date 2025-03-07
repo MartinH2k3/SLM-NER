@@ -45,8 +45,8 @@ def get_base_model():
     return model
 
 
-def get_finetuned_model():
-    peft_config = PeftConfig.from_pretrained(_checkpoint_path + "/checkpoint-145")
+def get_finetuned_model(model_path="/checkpoint-145"):
+    peft_config = PeftConfig.from_pretrained(_checkpoint_path + model_path)
 
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -63,8 +63,8 @@ def get_finetuned_model():
         trust_remote_code=True
     )
 
-    model = PeftModel.from_pretrained(model, _checkpoint_path + "/checkpoint-145")
-
+    model = PeftModel.from_pretrained(model, _checkpoint_path + model_path)
+    model.merge_and_unload()
     return model
 
 
@@ -101,7 +101,7 @@ def generate_response(user_input: str, model=None, tokenizer=None):
 
     prepared_input = _prepare_for_inference(user_input, tokenizer)
     generation_args = {
-        "max_new_tokens": 150,
+        "max_new_tokens": 250,
         "return_full_text": False,
     }
     generation_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
