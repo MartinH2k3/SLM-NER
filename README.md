@@ -27,7 +27,7 @@ Optionally you can run setup.sh included into repository that does the necessary
 # Dataset
 The main dataset used in this project is [BioCreative-V-CDR-Corpus](https://github.com/JHnlp/BioCreative-V-CDR-Corpus/tree/master).  
 For using using different datasets, you need to
-1. Have your dataset in desired format. The dataset is plain text with entities annotated as 
+1. Have your dataset in desired XML-style format. The dataset is plain text with entities annotated as 
 ```Text that isn't an entity and entities are <category="CategoryName">EntityName</category>.```  
 In other words, the entities have to be enclosed in the category tag with category name. The text cannot contain the category tag or
 Phi-3 mini special tokens which are:  
