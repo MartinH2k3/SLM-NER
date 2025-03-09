@@ -1,5 +1,6 @@
 # System Set Up
 ## WSL
+(skip if on linux)
 WSL installation is simple with ```wsl --install```
 ## Cuda
 You can install Cuda toolkit from the [Nvidia website](https://developer.nvidia.com/cuda-downloads).
