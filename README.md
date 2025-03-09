@@ -21,7 +21,7 @@ For example: ```bash Anaconda3-5.2.0-Linux-x86_64.sh```
 After cloning this repository, you can create a conda environment with the following command:  
 ```conda env create -f environment.yml```  
 After running this command, pip will automatically install all the necessary packages.  
-To activate the environment, run: ```conda activate bp_wsl```
+To activate the environment, run: ```conda activate bp_wsl```  
 Optionally you can run setup.sh included into repository that does the necessary steps automatically.
 # Dataset
 The main dataset used in this project is [BioCreative-V-CDR-Corpus](https://github.com/JHnlp/BioCreative-V-CDR-Corpus/tree/master).  
