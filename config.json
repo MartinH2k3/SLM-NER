@@ -5,6 +5,5 @@
   "dev_dataset_path": "data/CDR_DevelopmentSet.json",
   "system_prompt_path": "data/system_prompt.txt",
   "checkpoint_path": "checkpoint_dir/",
-  "api_model": "gpt-4o-mini",
   "result_separator": "\n$SEP$\n"
 }

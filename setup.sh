@@ -6,3 +6,4 @@ echo "Activating the environment..."
 conda activate bp
 
 echo "Installing other dependencies..."
+python pip install -r requirements.txt

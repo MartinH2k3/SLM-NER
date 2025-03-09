@@ -1,23 +1,29 @@
 -r torch_requirements.txt
-transformers==4.46.*
-peft==0.13.*
-datasets==3.*.*
-bitsandbytes==0.44.*
-accelerate==1.0.* # required by peft
-loralib==0.1.*
-nltk==3.9.1
-pandas==2.2.*
-matplotlib
+# hugging face
 huggingface_hub
-trl==0.12.*
+transformers==4.46.*
+datasets==3.*.*
+# training
+peft==0.13.*
+bitsandbytes==0.44.*
+accelerate==1.0.*
+loralib==0.1.*
 flash-attn
 deepspeed
-outlines==0.1.*
-interegular # included in outlines as a dependancy, but silencing the warning
-# possibly not necesary, we will see
+trl==0.12.*
+# dataset processing
+nltk==3.9.1
+pandas==2.2.*
+# testing other models
 openai
 litellm
 python-dotenv
-wandb
-flask
+# evaluation
 nervaluate
+matplotlib
+jsonpickle
+scipy
+scikit-learn
+wandb
+# usage
+flask

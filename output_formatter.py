@@ -4,7 +4,9 @@ def transform_to_prodigy(original_sentence: str, original_result: str) -> list[d
     parsed_entity_json = json.loads(original_result)
     entities = []
     found: set[tuple[int, int]] = set()
+    original_sentence = original_sentence.lower()
     for entity in parsed_entity_json:
+        entity["entity"] = entity["entity"].lower()
         search_start = 0
         entiy_found = False
         while True:
