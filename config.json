@@ -5,5 +5,7 @@
   "dev_dataset_path": "data/CDR_DevelopmentSet.json",
   "system_prompt_path": "data/system_prompt.txt",
   "checkpoint_path": "checkpoint_dir/",
-  "result_separator": "\n$SEP$\n"
+  "result_separator": "\n$SEP$\n",
+  "litellm_url": "http://147.175.151.44/",
+  "deepseek_url": "https://api.deepseek.com"
 }
