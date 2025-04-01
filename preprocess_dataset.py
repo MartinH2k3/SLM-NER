@@ -10,15 +10,10 @@ nltk.download('punkt_tab')
 filepaths = []
 if len(argv) < 2:
     print("Usage: python preprocess_dataset.py <filepath1> <filepath2> ...")
-    print("Trying default paths")
     filepaths = []
 else:
     for arg in argv[1:]:
         filepaths.append(arg)
-
-
-def stringify_sentence_entities():
-    pass
 
 
 def refactor_file(filepath: str):

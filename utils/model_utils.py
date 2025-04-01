@@ -79,7 +79,7 @@ def _prepare_for_inference(user_input: str, tokenizer):
     if len(_system_prompt):
         prompt_data.append({"role": "system", "content": _system_prompt})
     prompt_data.append({"role": "user", "content": user_input})
-    return tokenizer.apply_chat_template(
+    return tokenizer._apply_chat_template(
         prompt_data, tokenize=False, add_generation_prompt=True
     )
 
