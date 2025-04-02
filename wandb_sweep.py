@@ -43,7 +43,7 @@ _sweep_config = {
             "max": 1e-3,
         },
         "batch_size": {
-            "values": [1, 2, 4, 8, 16],
+            "values": [1, 2, 4],
         },
         "num_train_epochs": {
             "values": [1, 2, 3, 4],
@@ -53,7 +53,7 @@ _sweep_config = {
             "max": 0.9,
         },
         "r": {
-            "values": [4, 8, 16, 32],
+            "values": [2, 4, 8, 16],
         },
         "lora_alpha": {
             "values": [16, 32, 64],
@@ -135,6 +135,7 @@ def objective(sweep_config):
             warmup_ratio=sweep_config.warmup_ratio,
             logging_steps=50,
             save_strategy="epoch",
+            output_dir="./temp_checkpoint_dir"
         ),
         train_dataset=processed_train,
         eval_dataset=processed_dev,
@@ -153,6 +154,7 @@ def main():
     wandb.log({"eval_loss": eval_loss})
 
 
-sweep_id = wandb.sweep(sweep=_sweep_config, project="my-first-sweep")
+sweep_id = wandb.sweep(sweep=_sweep_config, project="finetuning_for_ner")
 
-wandb.agent(sweep_id, function=main, count=10)
+# TODO add forced garbage collecting or something to avoid running out of memory
+wandb.agent(sweep_id, function=main, count=1)
