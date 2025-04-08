@@ -87,6 +87,7 @@ def objective(sweep_config):
     )
 
     tokenizer = AutoTokenizer.from_pretrained(config.get("model_path"))
+    tokenizer.padding_side = "right"
     model.eval()
 
     ## Load the datasets
@@ -142,11 +143,17 @@ def objective(sweep_config):
         peft_config=peft_config,
         tokenizer=tokenizer
     )
-    trainer.train()
+    training_results = trainer.train()
+
     result = trainer.evaluate()
-    if hasattr(result, "eval_loss"):
-        wandb.log({"loss": result.eval_loss})
-        return result.eval_loss
+    print(result)
+    # if eval loss isn't there, something is wrong with the trainer and no reason to go on
+    assert "eval_loss" in result, "'eval_loss' not found in evaluation result"
+
+    wandb.log({"loss": result["eval_loss"]})
+
+    return result["eval_loss"]
+
 
 def main():
     wandb.init(project="finetuning_for_ner")
@@ -154,7 +161,5 @@ def main():
     wandb.log({"eval_loss": eval_loss})
 
 
-sweep_id = wandb.sweep(sweep=_sweep_config, project="finetuning_for_ner")
-
-# TODO add forced garbage collecting or something to avoid running out of memory
-wandb.agent(sweep_id, function=main, count=1)
+if __name__ == "__main__":
+    main()
