@@ -135,6 +135,50 @@ def generate_openai(user_input: str, provider: str = "litellm", model_name: str 
     return response.choices[0].message.content
 
 
+numind_model, numind_tokenizer = None, None
+def get_numind_model(model_name = "numind/NuExtract-2-2B"):
+    global numind_model, numind_tokenizer
+    if numind_model is None:
+        numind_model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True,
+                                             torch_dtype=torch.bfloat16,
+                                             attn_implementation="flash_attention_2" # we recommend using flash attention
+                                            ).to("cuda")
+    if numind_tokenizer is None:
+        numind_tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True, padding_side='left')
+    return numind_model, numind_tokenizer
+
+
+def generate_numind(user_input: str, model_name = "numind/NuExtract-2-2B"):
+    model, tokenizer = get_numind_model(model_name)
+    template = """{"Chemical": ["verbatim-string"], "Disease": ["verbatim-string"]}"""
+    examples = [
+        {
+            "input": "Naloxone reverses the antihypertensive effect of clonidine. In unanesthetized, spontaneously hypertensive rats the decrease in blood pressure and heart rate produced by intravenous clonidine, 5 to 20 micrograms/kg, was inhibited or reversed by nalozone, 0.2 to 2 mg/kg.",
+            "output": """[Chemicals: ["Naloxone", "clonidine", clonidine, nalozone], Diseases: [hypertensive]]"""
+        }
+    ]
+    input_messages = [construct_message(user_input, template, examples)]
+
+    input_content = prepare_inputs(
+        messages=input_messages,
+        image_paths=[],
+        tokenizer=tokenizer,
+    )
+
+    generation_config = {"do_sample": False, "num_beams": 1, "max_new_tokens": 2048}
+
+    with torch.no_grad():
+        result = nuextract_generate(
+            model=model,
+            tokenizer=tokenizer,
+            prompts=input_content['prompts'],
+            pixel_values_list=input_content['pixel_values_list'],
+            num_patches_list=input_content['num_patches_list'],
+            generation_config=generation_config
+        )
+    return result
+
+
 def store_results(results: list[str], file_path: str, do_backup: bool = False, do_append: bool = False):
     with open(file_path, 'w' if not do_append else 'a') as file:
         file.write(_result_separator.join(results))

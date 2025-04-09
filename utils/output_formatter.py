@@ -39,3 +39,27 @@ def prodigy_to_interpreteval(sentences: list[list[dict]]) -> list[list[tuple]]:
     for sentences in sentences:
         output.append([(entity["start"], entity["end"], entity["label"]) for entity in sentences])
     return output
+
+def numind_to_default(entities):
+    # numind format ['{"Chemical": [], "Disease": []}']
+    # default format [[{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]]
+    entities = [json.loads(entity) for entity in entities]
+    output = []
+    for entity in entities:
+        temp = []
+        for category, values in entity.items():
+            for value in values:
+                temp.append({"category": category, "entity": value})
+        output.append(temp)
+    return output
+
+def default_to_numind(sentences):
+    # default format [[{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]]
+    # numind format ['{"Chemical": [], "Disease": []}']
+    output = []
+    for entities in sentences:
+        temp = { "Chemical": [], "Disease": [] }
+        for entity in entities:
+            temp[entity["category"]].append(entity["entity"])
+        output.append(json.dumps(temp))
+    return output
