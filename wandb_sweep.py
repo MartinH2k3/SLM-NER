@@ -130,6 +130,7 @@ def objective(sweep_config):
             num_train_epochs=sweep_config.num_train_epochs,
             learning_rate=sweep_config.learning_rate,
             max_seq_length=4,
+            gradient_checkpointing=True,
             bf16=True,
             optim="adamw_8bit",
             lr_scheduler_type="cosine",
