@@ -11,9 +11,11 @@ import openai
 from dotenv import load_dotenv
 import os
 from typing import Optional
+from utils.numind_utils import *
+from utils.config_loader import load_config
 
-with open('../config.json', 'r') as file:
-    _config = json.load(file)
+
+_config = load_config()
 _system_prompt_path = _config.get("system_prompt_path")
 with open(_system_prompt_path, "r") as f:
     _system_prompt = f.read()
