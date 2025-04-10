@@ -1,5 +1,5 @@
 {
-  "model_path": "microsoft/Phi-3-mini-4k-instruct",
+  "main_model": "microsoft/Phi-3-mini-4k-instruct",
   "train_dataset_path": "data/CDR_TrainingSet.json",
   "test_dataset_path": "data/CDR_TestSet.json",
   "dev_dataset_path": "data/CDR_DevelopmentSet.json",
