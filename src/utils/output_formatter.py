@@ -40,26 +40,20 @@ def prodigy_to_interpreteval(sentences: list[list[dict]]) -> list[list[tuple]]:
         output.append([(entity["start"], entity["end"], entity["label"]) for entity in sentences])
     return output
 
-def numind_to_default(entities):
-    # numind format ['{"Chemical": [], "Disease": []}']
-    # default format [[{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]]
-    entities = [json.loads(entity) for entity in entities]
+def numind_to_default(entities, from_plural=True):
+    # numind format '{"Chemicals": [], "Diseases": []}'
+    # default format [{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]
+    entities = json.loads(entities)
     output = []
-    for entity in entities:
-        temp = []
-        for category, values in entity.items():
-            for value in values:
-                temp.append({"category": category, "entity": value})
-        output.append(temp)
+    for category, values in entities.items():
+        for value in values:
+            output.append({"category": category[:-1], "entity": value})
     return output
 
-def default_to_numind(sentences):
-    # default format [[{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]]
-    # numind format ['{"Chemical": [], "Disease": []}']
-    output = []
-    for entities in sentences:
-        temp = { "Chemical": [], "Disease": [] }
-        for entity in entities:
-            temp[entity["category"]].append(entity["entity"])
-        output.append(json.dumps(temp))
+def default_to_numind(entities, make_plural=True):
+    # default format [{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]
+    # numind format '{"Chemicals": [], "Diseases": []}'
+    output = { "Chemical" + make_plural * "s": [], "Diseases" + make_plural * "s": []}
+    for entity in entities:
+        output[entity["category"] + make_plural * "s"].append(entity["entity"])
     return output

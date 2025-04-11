@@ -1,34 +1,28 @@
-import json
-import torch
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
     pipeline
 )
+import torch
 from peft import PeftConfig, PeftModel
 import openai
 from dotenv import load_dotenv
 import os
 from typing import Optional
-from utils.numind_utils import *
-from utils.config_loader import load_config
+from src.utils.config_loader import load_config
 
 
 _config = load_config()
-_system_prompt_path = _config.get("system_prompt_path")
-with open(_system_prompt_path, "r") as f:
-    _system_prompt = f.read()
-_model_path = _config.get("model_path")
+_config.get("system_prompt_path")
+
 _checkpoint_path = _config.get("checkpoint_path")
 _deepseek_model = "deepseek-chat"
 _result_separator = _config.get("result_separator")
-
-def get_system_prompt():
-    return _system_prompt
+_system_prompt = _config.get("system_prompt")
 
 
-def get_base_model():
+def get_base_model(model_path = _config.get("model")):
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
@@ -37,7 +31,7 @@ def get_base_model():
     )
 
     model = AutoModelForCausalLM.from_pretrained(
-        _model_path,
+        model_path,
         device_map="auto",
         trust_remote_code=True,
         quantization_config=bnb_config
@@ -70,25 +64,24 @@ def get_finetuned_model(model_path="/checkpoint-145"):
     return model
 
 
-def get_base_tokenizer():
-    tokenizer = AutoTokenizer.from_pretrained(_model_path)
+def get_base_tokenizer(model_path = _config.get("model")):
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
     tokenizer.pad_token = tokenizer.unk_token
     return tokenizer
 
 
-def _prepare_for_inference(user_input: str, tokenizer):
+def _prepare_for_inference(user_input: str, tokenizer, system_prompt):
     prompt_data = []
-    if len(_system_prompt):
-        prompt_data.append({"role": "system", "content": _system_prompt})
+    if len(system_prompt):
+        prompt_data.append({"role": "system", "content": system_prompt})
     prompt_data.append({"role": "user", "content": user_input})
-    return tokenizer._apply_chat_template(
+    return tokenizer.apply_chat_template(
         prompt_data, tokenize=False, add_generation_prompt=True
     )
 
-
 prev_model = None
 prev_tokenizer = None
-def generate_response(user_input: str, model=None, tokenizer=None):
+def generate_response(user_input: str, model=None, tokenizer=None, system_prompt=_system_prompt):
     global prev_model, prev_tokenizer
 
     if model is None:
@@ -101,7 +94,7 @@ def generate_response(user_input: str, model=None, tokenizer=None):
             prev_tokenizer = get_base_tokenizer()
         tokenizer = prev_tokenizer
 
-    prepared_input = _prepare_for_inference(user_input, tokenizer)
+    prepared_input = _prepare_for_inference(user_input, tokenizer, system_prompt)
     generation_args = {
         "max_new_tokens": 250,
         "return_full_text": False,
@@ -127,7 +120,7 @@ def generate_openai(user_input: str, provider: str = "litellm", model_name: str 
     response = client.chat.completions.create(
         model= model_name,
         messages=[
-            {"role": "system", "content": get_system_prompt()},
+            {"role": "system", "content": _system_prompt},
             {"role": "user",
              "content": user_input},
         ]
@@ -147,36 +140,6 @@ def get_numind_model(model_name = "numind/NuExtract-2-2B"):
         numind_tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True, padding_side='left')
     return numind_model, numind_tokenizer
 
-
-def generate_numind(user_input: str, model_name = "numind/NuExtract-2-2B"):
-    model, tokenizer = get_numind_model(model_name)
-    template = """{"Chemical": ["verbatim-string"], "Disease": ["verbatim-string"]}"""
-    examples = [
-        {
-            "input": "Naloxone reverses the antihypertensive effect of clonidine. In unanesthetized, spontaneously hypertensive rats the decrease in blood pressure and heart rate produced by intravenous clonidine, 5 to 20 micrograms/kg, was inhibited or reversed by nalozone, 0.2 to 2 mg/kg.",
-            "output": """[Chemicals: ["Naloxone", "clonidine", clonidine, nalozone], Diseases: [hypertensive]]"""
-        }
-    ]
-    input_messages = [construct_message(user_input, template, examples)]
-
-    input_content = prepare_inputs(
-        messages=input_messages,
-        image_paths=[],
-        tokenizer=tokenizer,
-    )
-
-    generation_config = {"do_sample": False, "num_beams": 1, "max_new_tokens": 2048}
-
-    with torch.no_grad():
-        result = nuextract_generate(
-            model=model,
-            tokenizer=tokenizer,
-            prompts=input_content['prompts'],
-            pixel_values_list=input_content['pixel_values_list'],
-            num_patches_list=input_content['num_patches_list'],
-            generation_config=generation_config
-        )
-    return result
 
 
 def store_results(results: list[str], file_path: str, do_backup: bool = False, do_append: bool = False):

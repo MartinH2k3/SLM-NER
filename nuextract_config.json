@@ -1,0 +1,12 @@
+{
+  "model": "numind/NuExtract-1.5",
+  "train_dataset_path": "data/CDR_TrainingSetNE.json",
+  "test_dataset_path": "data/CDR_TestSetNE.json",
+  "dev_dataset_path": "data/CDR_DevelopmentSetNE.json",
+  "model_dir_path": "models",
+  "system_prompt": "# Role:\nExtract entities based on template. Don't include reasoning.\n# Template:\n{\"Chemicals\": [], \"Diseases\": []}\n# Example:\n## Input:\nHowever, studies into the dose necessary to combating scopolamine. Effects of uninephrectomy and high protein feeding on lithium-induced chronic renal failure in rats.\n## Output:\n{\"Chemicals\": [\"scopolamine\", \"lithium\"], \"Diseases\": [\"chronic renal failure\"]}",
+  "checkpoint_path": "checkpoint_dir/",
+  "result_separator": "\n$SEP$\n",
+  "litellm_url": "http://147.175.151.44/",
+  "deepseek_url": "https://api.deepseek.com"
+}
