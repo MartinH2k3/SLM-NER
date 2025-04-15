@@ -12,8 +12,9 @@ wandb.login()
 def _apply_chat_template(sample, tokenizer, include_response=True):
     with open('config.json', 'r') as file:
         config = json.load(file)
-    with open(config.get("system_prompt_path"), "r") as f:
+    with open(config.get("system_prompt"), "r") as f:
         system_prompt = f.read()
+    wandb.config.get("system_prompt", system_prompt)
     message = []
     if len(system_prompt):
         message.append({"role": "system", "content": system_prompt})
@@ -43,13 +44,13 @@ def objective():
     )
 
     model = AutoModelForCausalLM.from_pretrained(
-        config.get("model_path"),
+        config.get("model"),
         device_map="auto",
         trust_remote_code=True,
         quantization_config=bnb_config
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(config.get("model_path"))
+    tokenizer = AutoTokenizer.from_pretrained(config.get("model"))
     tokenizer.padding_side = "right"
     model.eval()
 
@@ -77,10 +78,10 @@ def objective():
         processed_dev.save_to_disk("data/dev")
 
     peft_config = LoraConfig(
-        r=sweep_config.r,
-        lora_alpha=sweep_config.lora_alpha,
+        r=wandb.config.get("r", 16),
+        lora_alpha=wandb.config.get("lora_alpha", 16),
         target_modules=['gate_up_proj', 'base_layer', 'down_proj', 'qkv_proj', 'o_proj'],
-        lora_dropout=sweep_config.lora_dropout,
+        lora_dropout=wandb.config.get("lora_dropout", 0.05),
         bias="none",
         task_type="CAUSAL_LM"
     )
@@ -88,16 +89,16 @@ def objective():
     trainer = SFTTrainer(
         model=model,
         args=SFTConfig(
-            per_device_train_batch_size=sweep_config.batch_size,
+            per_device_train_batch_size=wandb.config.get("batch_size", 4),
             gradient_accumulation_steps=4,
-            num_train_epochs=sweep_config.num_train_epochs,
-            learning_rate=sweep_config.learning_rate,
+            num_train_epochs=wandb.config.get("num_train_epochs", 2),
+            learning_rate=wandb.config.get("learning_rate", 1e-4),
             max_seq_length=4,
             gradient_checkpointing=True,
             bf16=True,
             optim="adamw_8bit",
             lr_scheduler_type="cosine",
-            warmup_ratio=sweep_config.warmup_ratio,
+            warmup_ratio=wandb.config.get("warmup_ratio", 0.05),
             logging_steps=50,
             save_strategy="epoch",
             output_dir="./temp_checkpoint_dir"
@@ -121,7 +122,7 @@ def objective():
 
 def main():
     wandb.init(project="finetuning_for_ner")
-    eval_loss = objective(wandb.config)
+    eval_loss = objective()
     wandb.log({"eval_loss": eval_loss})
 
 
