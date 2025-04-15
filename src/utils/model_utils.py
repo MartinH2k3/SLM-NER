@@ -16,7 +16,7 @@ from src.utils.config_loader import load_config
 _config = load_config()
 _config.get("system_prompt_path")
 
-_checkpoint_path = _config.get("checkpoint_path")
+_model_dir_path = _config.get("model_dir_path")
 _deepseek_model = "deepseek-chat"
 _result_separator = _config.get("result_separator")
 _system_prompt = _config.get("system_prompt")
@@ -42,7 +42,7 @@ def get_base_model(model_path = _config.get("model")):
 
 
 def get_finetuned_model(model_path="/checkpoint-145"):
-    peft_config = PeftConfig.from_pretrained(_checkpoint_path + model_path)
+    peft_config = PeftConfig.from_pretrained(_model_dir_path + model_path)
 
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -59,7 +59,7 @@ def get_finetuned_model(model_path="/checkpoint-145"):
         trust_remote_code=True
     )
 
-    model = PeftModel.from_pretrained(model, _checkpoint_path + model_path)
+    model = PeftModel.from_pretrained(model, _model_dir_path + model_path)
     model.merge_and_unload()
     return model
 
