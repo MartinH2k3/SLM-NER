@@ -28,44 +28,7 @@ def _apply_chat_template(sample, tokenizer, include_response=True):
     return tokenizer(message, padding=True, truncation=True)
 
 
-
-# set up the sweep based on https://docs.wandb.ai/guides/sweeps/walkthrough/
-_sweep_config = {
-    "name": "initial_sweep",
-    "method": "bayes",
-    "metric": {
-        "name": "eval/loss",
-        "goal": "minimize"
-    },
-    "parameters": {
-        "learning_rate": {
-            "min": 1e-5,
-            "max": 1e-3,
-        },
-        "batch_size": {
-            "values": [1, 2, 4],
-        },
-        "num_train_epochs": {
-            "values": [1, 2, 3, 4],
-        },
-        "warmup_ratio": {
-            "min": 0.1,
-            "max": 0.9,
-        },
-        "r": {
-            "values": [2, 4, 8, 16],
-        },
-        "lora_alpha": {
-            "values": [16, 32, 64],
-        },
-        "lora_dropout": {
-            "min": 0.1,
-            "max": 0.5,
-        },
-    }
-}
-
-def objective(sweep_config):
+def objective():
     # load data and model same way as in `model_finetuning.ipynb`
 
     with open('config.json', 'r') as file:
