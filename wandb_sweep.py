@@ -101,15 +101,17 @@ def objective():
             warmup_ratio=wandb.config.get("warmup_ratio", 0.05),
             logging_steps=50,
             save_strategy="epoch",
-            output_dir="./temp_checkpoint_dir"
+            output_dir="./temp_checkpoint_dir",
+            eval_accumulation_steps=15,
+            per_device_eval_batch_size=1,
         ),
         train_dataset=processed_train,
         eval_dataset=processed_dev,
         peft_config=peft_config,
         tokenizer=tokenizer
     )
-    training_results = trainer.train()
-
+    trainer.train()
+    torch.cuda.empty_cache()
     result = trainer.evaluate()
     print(result)
     # if eval loss isn't there, something is wrong with the trainer and no reason to go on
