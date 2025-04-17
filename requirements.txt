@@ -25,5 +25,6 @@ jsonpickle
 scipy
 scikit-learn
 wandb
+tqdm
 # usage
 flask

@@ -6,6 +6,7 @@
   "model_dir_path": "models/",
   "system_prompt": "Please identify all the named entities mentioned in the input sentence provided below. The entities may ONLY have categories \"Disease\" or \"Chemical\". You must output the results strictly as plain text in JSON format. Do not converse with the user, simply follow these instructions.\nExample user input and assistant response:\nUser:\nHowever, studies into the dose necessary to combating scopolamine. Effects of uninephrectomy and high protein feeding on lithium-induced chronic renal failure in rats.\nAssistant:\n[{\"category\": \"Chemical\", \"entity\": \"scopolamine\"}, {\"category\": \"Chemical\", \"entity\": \"lithium\"}, {\"category\": \"Disease\", \"entity\": \"chronic renal failure\"}]",
   "checkpoint_path": "checkpoint_dir/",
+  "model_output_path": "models/",
   "result_separator": "\n$SEP$\n",
   "litellm_url": "http://147.175.151.44/",
   "deepseek_url": "https://api.deepseek.com"

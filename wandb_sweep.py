@@ -6,12 +6,15 @@ from datasets import load_dataset, load_from_disk
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from trl import SFTTrainer, SFTConfig
 from peft import LoraConfig
-
+from src.utils.output_formatter import *
+from src.utils.model_utils import generate_response, fix_seed, get_finetuned_model
+from src.utils.config_loader import load_config
+from nervaluate import Evaluator
+from tqdm import tqdm
 wandb.login()
 
 def _apply_chat_template(sample, tokenizer, include_response=True):
-    with open('config.json', 'r') as file:
-        config = json.load(file)
+    config = load_config()
     with open(config.get("system_prompt"), "r") as f:
         system_prompt = f.read()
     wandb.config.get("system_prompt", system_prompt)
@@ -31,9 +34,9 @@ def _apply_chat_template(sample, tokenizer, include_response=True):
 
 def objective():
     # load data and model same way as in `model_finetuning.ipynb`
+    fix_seed()
 
-    with open('config.json', 'r') as file:
-        config = json.load(file)
+    config = load_config()
 
     ## set up model
     bnb_config = BitsAndBytesConfig(
@@ -101,7 +104,7 @@ def objective():
             warmup_ratio=wandb.config.get("warmup_ratio", 0.05),
             logging_steps=50,
             save_strategy="epoch",
-            output_dir="./temp_checkpoint_dir",
+            output_dir=config.get("model_dir_path") + "/temp_model",
             eval_accumulation_steps=15,
             per_device_eval_batch_size=1,
         ),
@@ -111,15 +114,48 @@ def objective():
         tokenizer=tokenizer
     )
     trainer.train()
+
+    trainer.save_model()
+
     torch.cuda.empty_cache()
     result = trainer.evaluate()
-    print(result)
-    # if eval loss isn't there, something is wrong with the trainer and no reason to go on
     assert "eval_loss" in result, "'eval_loss' not found in evaluation result"
+    wandb.log({"eval/loss": result["eval_loss"]})
 
-    wandb.log({"loss": result["eval_loss"]})
+    torch.cuda.empty_cache()
 
-    return result["eval_loss"]
+    # Returning NER metrics as final objective
+    test_sentences = []
+    test_true = []
+    with open(config.get("test_dataset_path"), 'r') as file:
+        testing_data = json.load(file)
+
+    for sample in testing_data[:100]:
+        test_sentences.append(sample["user"])
+        test_true.append(sample["assistant"])
+
+    model = get_finetuned_model(model_dir_path=config.get("model_dir_path") + "/temp_model")
+
+    test_generated = []
+    for sentence in tqdm(test_sentences):
+        test_generated.append(generate_response(sentence, model=model, tokenizer=tokenizer, system_prompt=""))
+
+    predicted = []
+    for i in range(len(test_generated)):
+        predicted_entities = []
+        try:
+            predicted_entities = transform_to_prodigy(test_sentences[i], test_generated[i])
+        except (json.JSONDecodeError, AttributeError, KeyError) as err:
+            print(f"Error in transforming generated response: {err}")
+        predicted.append(predicted_entities)
+
+    evaluator = Evaluator(test_true, predicted, tags=['Disease', 'Chemical'])
+    test_results = evaluator.evaluate()
+    # calculate geometric mean of f1 scores across evaluation schemas
+    output = 1
+    for schema in ['ent_type', 'partial', 'strict', 'exact']:
+        output *= test_results[0].get(schema).get('f1')
+    return output ** (1/4)
 
 
 def main():

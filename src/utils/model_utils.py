@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import os
 from typing import Optional
 from src.utils.config_loader import load_config
+import random, numpy as np
 
 
 _config = load_config()
@@ -22,7 +23,7 @@ _result_separator = _config.get("result_separator")
 _system_prompt = _config.get("system_prompt")
 
 
-def get_base_model(model_path = _config.get("model")):
+def get_base_model(model_path: str = _config.get("model")):
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
@@ -41,8 +42,8 @@ def get_base_model(model_path = _config.get("model")):
     return model
 
 
-def get_finetuned_model(model_path="/checkpoint-145"):
-    peft_config = PeftConfig.from_pretrained(_model_dir_path + model_path)
+def get_finetuned_model(model_name: str, model_dir_path: str =_config.get("model_output_path")):
+    peft_config = PeftConfig.from_pretrained(os.path.join(model_dir_path, model_name))
 
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -59,7 +60,7 @@ def get_finetuned_model(model_path="/checkpoint-145"):
         trust_remote_code=True
     )
 
-    model = PeftModel.from_pretrained(model, _model_dir_path + model_path)
+    model = PeftModel.from_pretrained(model, model_dir_path + model_name)
     model.merge_and_unload()
     return model
 
@@ -99,7 +100,7 @@ def generate_response(user_input: str, model=None, tokenizer=None, system_prompt
         "max_new_tokens": 250,
         "return_full_text": False,
     }
-    generation_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
+    generation_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer, torch_dtype=torch.bfloat16, device_map="auto", **generation_args)
     return generation_pipeline(prepared_input, **generation_args)[0]['generated_text']
 
 _openai_client: Optional[openai.OpenAI] = None
@@ -155,3 +156,10 @@ def store_results(results: list[str], file_path: str, do_backup: bool = False, d
 def load_results(file_path: str):
     with open(file_path, 'r') as file:
         return file.read().split(_result_separator)
+
+
+def fix_seed(seed: int = 42) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
