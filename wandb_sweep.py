@@ -134,7 +134,7 @@ def objective():
         test_sentences.append(sample["user"])
         test_true.append(sample["assistant"])
 
-    model = get_finetuned_model(model_dir_path=config.get("model_dir_path") + "/temp_model")
+    model = get_finetuned_model("temp_model", model_dir_path=config.get("model_output_path"))
 
     test_generated = []
     for sentence in tqdm(test_sentences):
