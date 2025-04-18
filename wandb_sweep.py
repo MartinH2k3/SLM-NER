@@ -1,3 +1,5 @@
+import random
+
 import wandb
 import os
 import json
@@ -130,9 +132,9 @@ def objective():
     with open(config.get("test_dataset_path"), 'r') as file:
         testing_data = json.load(file)
 
-    for sample in testing_data[:100]:
+    for sample in random.sample(testing_data, 50):
         test_sentences.append(sample["user"])
-        test_true.append(sample["assistant"])
+        test_true.append(transform_to_prodigy(sample["user"], sample["assistant"]))
 
     model = get_finetuned_model("temp_model", model_dir_path=config.get("model_output_path"))
 
@@ -149,13 +151,21 @@ def objective():
             print(f"Error in transforming generated response: {err}")
         predicted.append(predicted_entities)
 
+    print("Sentences:")
+    for sentence in test_sentences:
+        print(sentence)
+    print("Generated:")
+    for generated in predicted:
+        print(generated)
     evaluator = Evaluator(test_true, predicted, tags=['Disease', 'Chemical'])
-    test_results = evaluator.evaluate()
+    test_results = evaluator.evaluate()[0]
     # calculate geometric mean of f1 scores across evaluation schemas
     output = 1
     for schema in ['ent_type', 'partial', 'strict', 'exact']:
-        output *= test_results[0].get(schema).get('f1')
-    return output ** (1/4)
+        output *= test_results.get(schema).get('f1')
+    output **= (1 / 4)
+    wandb.log({"eval/f1": output})
+    return output
 
 
 def main():
