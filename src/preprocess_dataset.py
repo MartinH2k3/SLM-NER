@@ -10,7 +10,6 @@ nltk.download('punkt_tab')
 filepaths = []
 if len(argv) < 2:
     print("Usage: python preprocess_dataset.py <filepath1> <filepath2> ...")
-    filepaths = []
 else:
     for arg in argv[1:]:
         filepaths.append(arg)

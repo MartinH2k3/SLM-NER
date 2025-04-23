@@ -17,9 +17,7 @@ wandb.login()
 
 def _apply_chat_template(sample, tokenizer, include_response=True):
     config = load_config()
-    with open(config.get("system_prompt"), "r") as f:
-        system_prompt = f.read()
-    wandb.config.get("system_prompt", system_prompt)
+    system_prompt = wandb.config.get("system_prompt", config.get("system_prompt"))
     message = []
     if len(system_prompt):
         message.append({"role": "system", "content": system_prompt})
@@ -36,11 +34,12 @@ def _apply_chat_template(sample, tokenizer, include_response=True):
 
 def objective():
     # load data and model same way as in `model_finetuning.ipynb`
+    # ensure same conditions for every iteration
     fix_seed()
 
     config = load_config()
 
-    ## set up model
+    # set up model
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
@@ -132,7 +131,7 @@ def objective():
     with open(config.get("test_dataset_path"), 'r') as file:
         testing_data = json.load(file)
 
-    for sample in random.sample(testing_data, 50):
+    for sample in random.sample(testing_data, 10):
         test_sentences.append(sample["user"])
         test_true.append(transform_to_prodigy(sample["user"], sample["assistant"]))
 
@@ -140,7 +139,7 @@ def objective():
 
     test_generated = []
     for sentence in tqdm(test_sentences):
-        test_generated.append(generate_response(sentence, model=model, tokenizer=tokenizer, system_prompt=""))
+        test_generated.append(generate_response(sentence, model=model, tokenizer=tokenizer, system_prompt=wandb.config.get("system_prompt", config.get("system_prompt"))))
 
     predicted = []
     for i in range(len(test_generated)):
@@ -151,12 +150,8 @@ def objective():
             print(f"Error in transforming generated response: {err}")
         predicted.append(predicted_entities)
 
-    print("Sentences:")
-    for sentence in test_sentences:
-        print(sentence)
-    print("Generated:")
-    for generated in predicted:
-        print(generated)
+    print("\nPredicted:\n\n", predicted)
+    print("\nGenerated:\n\n", test_generated)
     evaluator = Evaluator(test_true, predicted, tags=['Disease', 'Chemical'])
     test_results = evaluator.evaluate()[0]
     # calculate geometric mean of f1 scores across evaluation schemas
