@@ -37,7 +37,7 @@ Phi-3 mini special tokens which are:
 3. In ```system_prompt.txt``` change the category names to the category names in your dataset and provide your examples instead of the examples provided.
 4. In ```finetune.py``` script, change the dataset path to the path of your dataset.
 # Evaluation
-Evaluation is done in ```evaluatiin.ipynb``` notebook.  
+Evaluation is done in ```evaluation.ipynb``` notebook.  
 To evaluate the model, change the base model path and checkpoint path in ```config.json``` file to your desired model and checkpoint.  
 To evaluate on a different dataset, change the test_dataset_path in ```config.json``` file to your desired dataset.  
 To evaluate using open
