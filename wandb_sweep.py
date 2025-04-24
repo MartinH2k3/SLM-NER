@@ -145,6 +145,8 @@ def objective():
     for i in range(len(test_generated)):
         predicted_entities = []
         try:
+            if config.get("use_nuextract"):
+                test_generated[i] = numind_to_default(test_generated[i])
             predicted_entities = transform_to_prodigy(test_sentences[i], test_generated[i])
         except (json.JSONDecodeError, AttributeError, KeyError) as err:
             print(f"Error in transforming generated response: {err}")
