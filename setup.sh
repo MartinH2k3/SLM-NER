@@ -1,9 +1,10 @@
 #!/bin/bash
-echo "Creating Conda environment from environment.yaml..."
-conda env create -f environment.yaml
+echo "Creating Conda environment"
+conda create -n slmner python=3.12
 
-echo "Activating the environment..."
-conda activate bp
+echo "Activating Conda environment"
+conda activate slmner
 
-echo "Installing other dependencies..."
-python pip install -r requirements.txt
+echo "Installing dependencies..."
+pip install -r src/torch_requirements.txt
+pip install -r src/requirements.txt
