@@ -40,20 +40,21 @@ def prodigy_to_interpreteval(sentences: list[list[dict]]) -> list[list[tuple]]:
         output.append([(entity["start"], entity["end"], entity["label"]) for entity in sentences])
     return output
 
-def numind_to_default(entities, from_plural=True):
-    # numind format '{"Chemicals": [], "Diseases": []}'
+def numind_to_default(entities: str, from_plural=True) -> str:
+    # numind format {"Chemicals": [], "Diseases": []}
     # default format [{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]
     entities = json.loads(entities)
     output = []
     for category, values in entities.items():
         for value in values:
             output.append({"category": category[:-1], "entity": value})
-    return output
+    return json.dumps(output)
 
-def default_to_numind(entities, make_plural=True):
+def default_to_numind(entities: str, make_plural=True) -> str:
     # default format [{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]
-    # numind format '{"Chemicals": [], "Diseases": []}'
+    # numind format {"Chemicals": [], "Diseases": []}
+    entities = json.loads(entities)
     output = { "Chemical" + make_plural * "s": [], "Diseases" + make_plural * "s": []}
     for entity in entities:
         output[entity["category"] + make_plural * "s"].append(entity["entity"])
-    return output
+    return json.dumps(output)
