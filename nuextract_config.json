@@ -8,5 +8,6 @@
   "checkpoint_path": "checkpoint_dir/",
   "result_separator": "\n$SEP$\n",
   "litellm_url": "http://147.175.151.44/",
-  "deepseek_url": "https://api.deepseek.com"
+  "deepseek_url": "https://api.deepseek.com",
+  "use_nuextract": true
 }

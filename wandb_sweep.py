@@ -122,6 +122,8 @@ def objective():
     result = trainer.evaluate()
     assert "eval_loss" in result, "'eval_loss' not found in evaluation result"
     wandb.log({"eval/loss": result["eval_loss"]})
+    # NOTE: Uncomment following line if sweeping based on eval_loss, not f1 score
+    # return result["eval_loss"]
 
     torch.cuda.empty_cache()
 

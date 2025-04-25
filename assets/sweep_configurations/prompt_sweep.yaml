@@ -1,9 +1,9 @@
-method: bayes
-name: ner_finetuning_sweep
+method: grid
+name: prompt_grid_sweep
 program: wandb_sweep.py
 metric:
-  name: eval/loss
-  goal: minimize
+  name: eval/f1
+  goal: maximize
 parameters:
   system_prompt:
     values:

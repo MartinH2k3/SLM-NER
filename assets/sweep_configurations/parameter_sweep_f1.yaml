@@ -2,8 +2,8 @@ method: bayes
 name: ner_finetuning_sweep
 program: wandb_sweep.py
 metric:
-  name: eval/loss
-  goal: minimize
+  name: eval/f1
+  goal: maximize
 parameters:
   learning_rate:
     distribution: log_uniform_values
