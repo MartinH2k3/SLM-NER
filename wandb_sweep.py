@@ -82,10 +82,10 @@ def objective():
         processed_dev.save_to_disk("data/dev")
 
     peft_config = LoraConfig(
-        r=wandb.config.get("r", 16),
-        lora_alpha=wandb.config.get("lora_alpha", 16),
+        r=wandb.config.get("r", 4),
+        lora_alpha=wandb.config.get("lora_alpha", 64),
         target_modules=['gate_up_proj', 'base_layer', 'down_proj', 'qkv_proj', 'o_proj'],
-        lora_dropout=wandb.config.get("lora_dropout", 0.05),
+        lora_dropout=wandb.config.get("lora_dropout", 0.3005),
         bias="none",
         task_type="CAUSAL_LM"
     )
@@ -93,16 +93,16 @@ def objective():
     trainer = SFTTrainer(
         model=model,
         args=SFTConfig(
-            per_device_train_batch_size=wandb.config.get("batch_size", 4),
+            per_device_train_batch_size=wandb.config.get("batch_size", 8),
             gradient_accumulation_steps=4,
             num_train_epochs=wandb.config.get("num_train_epochs", 2),
-            learning_rate=wandb.config.get("learning_rate", 1e-4),
+            learning_rate=wandb.config.get("learning_rate", 0.0007643),
             max_seq_length=4,
             gradient_checkpointing=True,
             bf16=True,
             optim="adamw_8bit",
             lr_scheduler_type="cosine",
-            warmup_ratio=wandb.config.get("warmup_ratio", 0.05),
+            warmup_ratio=wandb.config.get("warmup_ratio", 0.2344),
             logging_steps=50,
             save_strategy="epoch",
             output_dir=config.get("model_dir_path") + "/temp_model",
@@ -131,7 +131,7 @@ def objective():
     with open(config.get("test_dataset_path"), 'r') as file:
         testing_data = json.load(file)
 
-    for sample in random.sample(testing_data, 10):
+    for sample in random.sample(testing_data, 50):
         test_sentences.append(sample["user"])
         test_true.append(transform_to_prodigy(sample["user"], sample["assistant"]))
 
