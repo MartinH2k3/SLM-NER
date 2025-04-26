@@ -54,7 +54,8 @@ def default_to_numind(entities: str, make_plural=True) -> str:
     # default format [{"category": "Chemical", "entity": "Ketamine"}, {"category": "Disease", "entity": "Anxiety"}]
     # numind format {"Chemicals": [], "Diseases": []}
     entities = json.loads(entities)
-    output = { "Chemical" + make_plural * "s": [], "Diseases" + make_plural * "s": []}
+    output = { "Chemical" + make_plural * "s": [], "Disease" + make_plural * "s": []}
     for entity in entities:
         output[entity["category"] + make_plural * "s"].append(entity["entity"])
     return json.dumps(output)
+
