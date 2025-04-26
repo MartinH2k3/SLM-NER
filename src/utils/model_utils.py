@@ -42,7 +42,7 @@ def get_base_model(model_path: str = _config.get("model")):
     return model
 
 
-def get_finetuned_model(model_name: str, model_dir_path: str =_config.get("model_output_path")):
+def get_finetuned_model(model_name: str, model_dir_path: str =_config.get("model_dir_path")):
     peft_config = PeftConfig.from_pretrained(os.path.join(model_dir_path, model_name))
 
     bnb_config = BitsAndBytesConfig(

@@ -93,7 +93,7 @@ def objective():
     trainer = SFTTrainer(
         model=model,
         args=SFTConfig(
-            per_device_train_batch_size=wandb.config.get("batch_size", 8),
+            per_device_train_batch_size=wandb.config.get("batch_size", 4),
             gradient_accumulation_steps=4,
             num_train_epochs=wandb.config.get("num_train_epochs", 2),
             learning_rate=wandb.config.get("learning_rate", 0.0007643),
@@ -128,35 +128,34 @@ def objective():
     torch.cuda.empty_cache()
 
     # Returning NER metrics as final objective
-    test_sentences = []
-    test_true = []
-    with open(config.get("test_dataset_path"), 'r') as file:
-        testing_data = json.load(file)
+    eval_sentences = []
+    eval_true = []
+    # loading the data in a non-tokenized format for inference
+    with open(config.get("dev_dataset_path"), 'r') as file:
+        eval_data = json.load(file)
 
-    for sample in random.sample(testing_data, 50):
-        test_sentences.append(sample["user"])
-        test_true.append(transform_to_prodigy(sample["user"], sample["assistant"]))
+    for sample in random.sample(eval_data, 50):
+        eval_sentences.append(sample["user"])
+        eval_true.append(transform_to_prodigy(sample["user"], sample["assistant"]))
 
-    model = get_finetuned_model("temp_model", model_dir_path=config.get("model_output_path"))
+    model = get_finetuned_model("temp_model", model_dir_path=config.get("model_dir_path"))
 
-    test_generated = []
-    for sentence in tqdm(test_sentences):
-        test_generated.append(generate_response(sentence, model=model, tokenizer=tokenizer, system_prompt=wandb.config.get("system_prompt", config.get("system_prompt"))))
+    eval_generated = []
+    for sentence in tqdm(eval_sentences):
+        eval_generated.append(generate_response(sentence, model=model, tokenizer=tokenizer, system_prompt=wandb.config.get("system_prompt", config.get("system_prompt"))))
 
     predicted = []
-    for i in range(len(test_generated)):
+    for i in range(len(eval_generated)):
         predicted_entities = []
         try:
             if config.get("use_nuextract"):
-                test_generated[i] = numind_to_default(test_generated[i])
-            predicted_entities = transform_to_prodigy(test_sentences[i], test_generated[i])
+                eval_generated[i] = numind_to_default(eval_generated[i])
+            predicted_entities = transform_to_prodigy(eval_sentences[i], eval_generated[i])
         except (json.JSONDecodeError, AttributeError, KeyError) as err:
             print(f"Error in transforming generated response: {err}")
         predicted.append(predicted_entities)
 
-    print("\nPredicted:\n\n", predicted)
-    print("\nGenerated:\n\n", test_generated)
-    evaluator = Evaluator(test_true, predicted, tags=['Disease', 'Chemical'])
+    evaluator = Evaluator(eval_true, predicted, tags=['Disease', 'Chemical'])
     test_results = evaluator.evaluate()[0]
     # calculate geometric mean of f1 scores across evaluation schemas
     output = 1
