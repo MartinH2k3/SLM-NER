@@ -82,10 +82,10 @@ def objective():
         processed_dev.save_to_disk("data/dev")
 
     peft_config = LoraConfig(
-        r=wandb.config.get("r", 4),
+        r=wandb.config.get("r", 8),
         lora_alpha=wandb.config.get("lora_alpha", 64),
         target_modules=['gate_up_proj', 'base_layer', 'down_proj', 'qkv_proj', 'o_proj'],
-        lora_dropout=wandb.config.get("lora_dropout", 0.3005),
+        lora_dropout=wandb.config.get("lora_dropout", 0.4394),
         bias="none",
         task_type="CAUSAL_LM"
     )
@@ -93,16 +93,16 @@ def objective():
     trainer = SFTTrainer(
         model=model,
         args=SFTConfig(
-            per_device_train_batch_size=wandb.config.get("batch_size", 4),
+            per_device_train_batch_size=wandb.config.get("batch_size", 1),
             gradient_accumulation_steps=4,
             num_train_epochs=wandb.config.get("num_train_epochs", 2),
-            learning_rate=wandb.config.get("learning_rate", 0.0007643),
+            learning_rate=wandb.config.get("learning_rate", 0.0008662),
             max_seq_length=4,
             gradient_checkpointing=True,
             bf16=True,
             optim="adamw_8bit",
             lr_scheduler_type="cosine",
-            warmup_ratio=wandb.config.get("warmup_ratio", 0.2344),
+            warmup_ratio=wandb.config.get("warmup_ratio", 0.4122),
             logging_steps=50,
             save_strategy="epoch",
             output_dir=config.get("model_dir_path") + "/temp_model",
@@ -118,10 +118,10 @@ def objective():
 
     trainer.save_model()
 
-    torch.cuda.empty_cache()
-    result = trainer.evaluate()
-    assert "eval_loss" in result, "'eval_loss' not found in evaluation result"
-    wandb.log({"eval/loss": result["eval_loss"]})
+    # torch.cuda.empty_cache()
+    # result = trainer.evaluate()
+    # assert "eval_loss" in result, "'eval_loss' not found in evaluation result"
+    # wandb.log({"eval/loss": result["eval_loss"]})
     # NOTE: Uncomment following line if sweeping based on eval_loss, not f1 score
     # return result["eval_loss"]
 
@@ -136,6 +136,8 @@ def objective():
 
     for sample in random.sample(eval_data, 50):
         eval_sentences.append(sample["user"])
+        if config.get("use_nuextract", False):
+            sample["assistant"] = numind_to_default(sample["assistant"])
         eval_true.append(transform_to_prodigy(sample["user"], sample["assistant"]))
 
     model = get_finetuned_model("temp_model", model_dir_path=config.get("model_dir_path"))
@@ -148,8 +150,8 @@ def objective():
     for i in range(len(eval_generated)):
         predicted_entities = []
         try:
-            if config.get("use_nuextract"):
-                eval_generated[i] = numind_to_default(eval_generated[i])
+            if config.get("use_nuextract", False):
+                eval_generated[i] = numind_to_default(eval_generated[i].split("\n")[0])
             predicted_entities = transform_to_prodigy(eval_sentences[i], eval_generated[i])
         except (json.JSONDecodeError, AttributeError, KeyError) as err:
             print(f"Error in transforming generated response: {err}")
@@ -167,7 +169,7 @@ def objective():
 
 
 def main():
-    wandb.init(project="finetuning_for_ner")
+    wandb.init()
     eval_loss = objective()
     wandb.log({"eval_loss": eval_loss})
 

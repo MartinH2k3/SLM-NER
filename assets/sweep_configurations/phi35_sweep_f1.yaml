@@ -1,5 +1,6 @@
 method: bayes
-name: ner_finetuning_sweep
+name: phi35_sweep
+project: bp_wsl
 program: wandb_sweep.py
 metric:
   name: eval/f1
@@ -16,7 +17,7 @@ parameters:
   warmup_ratio:
     distribution: uniform
     min: 0.01
-    max: 0.9
+    max: 0.5
   r:
     values: [2, 4, 8, 16]
   lora_alpha:
