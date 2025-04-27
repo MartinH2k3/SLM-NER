@@ -8,14 +8,14 @@ parameters:
   learning_rate:
     distribution: log_uniform_values
     min: 1e-5
-    max: 1e-3
+    max: 5e-3
   batch_size:
     values: [1, 2, 4]
   num_train_epochs:
     values: [1, 1.5, 2, 2.5, 3]
   warmup_ratio:
     distribution: uniform
-    min: 0.1
+    min: 0.01
     max: 0.9
   r:
     values: [2, 4, 8, 16]
