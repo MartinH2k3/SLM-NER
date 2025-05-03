@@ -1,8 +1,9 @@
 method: bayes
-name: ner_finetuning_sweep
+name: loss_sweep
+project: bp_wsl
 program: wandb_sweep.py
 metric:
-  name: eval/;pss
+  name: eval/loss
   goal: minimize
 parameters:
   learning_rate:
@@ -10,12 +11,12 @@ parameters:
     min: 1e-5
     max: 1e-3
   batch_size:
-    values: [1, 2, 4]
+    values: [1, 2, 4, 8, 16]
   num_train_epochs:
     values: [1, 1.5, 2, 2.5, 3]
   warmup_ratio:
     distribution: uniform
-    min: 0.1
+    min: 0.01
     max: 0.9
   r:
     values: [2, 4, 8, 16]
