@@ -1,0 +1,55 @@
+        Please identify all the named entities mentioned in the input sentence provided below. The entities may ONLY have categories "Disease" or "Chemical". You must output the results strictly as plain text in JSON format. Do not converse with the user, simply follow these instructions.
+        Example user input and assistant response:
+        User:
+        However, studies into the dose necessary to combating scopolamine. Effects of uninephrectomy and high protein feeding on lithium-induced chronic renal failure in rats.
+        Assistant:
+        [{"category": "Chemical", "entity": "scopolamine"}, {"category": "Chemical", "entity": "lithium"}, {"category": "Disease", "entity": "chronic renal failure"}]
+        #######
+        # Role: Extract entities based on example. The categories are "Disease" or "Chemical". Return results as plain text in JSON format.
+        # Example:
+        ## User:
+        However, studies into the dose necessary to combating scopolamine. Effects of uninephrectomy and high protein feeding on lithium-induced chronic renal failure in rats.
+        ## Assistant:
+        [{"category": "Chemical", "entity": "scopolamine"}, {"category": "Chemical", "entity": "lithium"}, {"category": "Disease", "entity": "chronic renal failure"}]
+        #######
+        You are given a sentence. Your task is to detect entities that belong ONLY to categories "Disease" or "Chemical". Provide the results exclusively in plain text JSON format without any additional explanations or conversation.
+        Example:
+        User: The patient was treated with ibuprofen and later diagnosed with rheumatoid arthritis.
+        Assistant: [{"category": "Chemical", "entity": "ibuprofen"}, {"category": "Disease", "entity": "rheumatoid arthritis"}]
+        #######
+        Extract all entities from the provided input sentence. Each entity must be categorized strictly as either "Disease" or "Chemical". Respond directly with a JSON array containing objects specifying each entity and its category.
+        Example:
+        User: "Increased use of aspirin correlates with reduced risk of cardiovascular disease but may increase gastrointestinal bleeding."
+        Assistant: [{"category": "Chemical", "entity": "aspirin"}, {"category": "Disease", "entity": "cardiovascular disease"}, {"category": "Disease", "entity": "gastrointestinal bleeding"}]
+        #######
+        You must identify and categorize named entities appearing in the provided text. The permissible entity categories are restricted to "Disease" or "Chemical". Output your findings strictly as plain JSON, formatted as shown in the example.
+        Example:
+        User:
+        Acetaminophen overdose is a common cause of acute liver failure.
+        Assistant:
+        [{"category": "Chemical", "entity": "Acetaminophen"}, {"category": "Disease", "entity": "acute liver failure"}]
+        #######
+        Instruction: Extract entities of type "Chemical" or "Disease" from the given text and output in JSON only.
+        Example Input:
+        "Penicillin remains a crucial antibiotic in the treatment of bacterial meningitis."
+        Example Output:
+        [{"category": "Chemical", "entity": "Penicillin"}, {"category": "Disease", "entity": "bacterial meningitis"}]
+        #######
+        Perform the following steps explicitly:
+        1.Read the provided text.
+        2.Identify and extract named entities that belong exclusively to either the "Disease" or "Chemical" category.
+        3.Provide the extracted entities in a JSON-formatted array.
+
+        Sample Text:
+        Excessive consumption of ethanol is associated with liver cirrhosis.
+        Expected Result:
+        [{"category": "Chemical", "entity": "ethanol"}, {"category": "Disease", "entity": "liver cirrhosis"}]
+        #######
+        Assistant Role:
+        You're specialized in extracting entities categorized as "Chemical" or "Disease" from given sentences. Always return the results strictly as JSON without additional commentary.
+
+        User Example:
+        "Ivermectin shows limited efficacy against COVID-19 infection."
+
+        Assistant Example:
+        [{"category": "Chemical", "entity": "Ivermectin"}, {"category": "Disease", "entity": "COVID-19 infection"}]

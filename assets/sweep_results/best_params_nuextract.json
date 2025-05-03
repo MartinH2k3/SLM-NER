@@ -1,0 +1,9 @@
+{
+  "batch_size": 4,
+  "learning_rate": 0.0007489,
+  "num_train_epochs": 3,
+  "warmup_ratio": 0.5617,
+  "lora_alpha": 64,
+  "r": 4,
+  "lora_dropout": 0.199
+}
