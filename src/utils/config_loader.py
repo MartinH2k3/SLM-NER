@@ -11,8 +11,13 @@ def load_config(filename="config.json"):
     config_path = os.path.join(project_root, filename)
 
     # Load the config JSON
-    with open(config_path, "r") as f:
-        config = json.load(f)
+    try:
+        with open(config_path, "r") as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        config_path = os.path.join(project_root, "assets", "example_configs", filename)
+        with open(config_path, "r") as f:
+            config = json.load(f)
 
     for key, value in config.items():
         if key.endswith("_path") and not os.path.isabs(value):
