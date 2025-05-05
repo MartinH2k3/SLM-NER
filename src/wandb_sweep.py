@@ -59,8 +59,8 @@ def objective():
     model.eval()
 
     ## Load the datasets
-    if os.path.exists("data/train"): # save time by not reprocessing
-        processed_train = load_from_disk("data/train")
+    if os.path.exists("../data/train"): # save time by not reprocessing
+        processed_train = load_from_disk("../data/train")
     else:
         raw_train = load_dataset("json", data_files=config.get("train_dataset_path"), download_mode="force_redownload")[
             "train"]
@@ -70,8 +70,8 @@ def objective():
         )
         processed_train.save_to_disk("data/train")
 
-    if os.path.exists("data/dev"): # save time by not reprocessing
-        processed_dev = load_from_disk("data/dev")
+    if os.path.exists("../data/dev"): # save time by not reprocessing
+        processed_dev = load_from_disk("../data/dev")
     else:
         raw_dev = load_dataset("json", data_files=config.get("dev_dataset_path"), download_mode="force_redownload")[
             "train"]
